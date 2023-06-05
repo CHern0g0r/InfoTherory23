@@ -18,6 +18,9 @@ class Coder(Module):
         out = self.coder(X)
         return out
 
+    def save(self):
+
+
 
 class Encoder(Module):
     def __init__(self):
@@ -39,8 +42,20 @@ class Decoder(Module):
 class Pipeline(Module):
 
     @staticmethod
-    def create(classes):
-        pass
+    def create(classes, args, weights=(None, None)):
+        if not all(map(
+            lambda x: len(x) == 2,
+            [classes, args]
+        )):
+            assert False
+
+        if len(weights) == 1:
+            weights = (None, None)
+        
+        enc, dec = map(
+            lambda x: x[0](x[1], x[2]),
+            zip(classes, args, weights)
+        )
 
     def __init__(self, encoder, decoder, quant):
         super().__init__()
@@ -49,4 +64,7 @@ class Pipeline(Module):
         self.q = quant
 
     def forward(self, X):
+        out = self.enc(X)
+        out = self.q(X)
+        out = self.dec(X)
         return X
